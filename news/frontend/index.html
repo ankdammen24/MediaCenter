@@ -47,7 +47,7 @@
             const url = document.getElementById('apiUrl').value;
 
             try {
-                const response = await fetch('/api/add', {
+                const response = await fetch('http://localhost:3000/api/add', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -70,7 +70,7 @@
             const name = document.getElementById('removeApiName').value;
 
             try {
-                const response = await fetch('/api/remove', {
+                const response = await fetch('http://localhost:3000/api/remove', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -89,7 +89,7 @@
         // Hämta nyheter och visa dem på sidan
         async function fetchNews() {
             try {
-                const response = await fetch('/api/news');
+                const response = await fetch('http://localhost:3000/api/news');
                 const data = await response.json();
                 
                 const newsContainer = document.getElementById('newsContainer');

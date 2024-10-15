@@ -1,20 +1,8 @@
-# Använd en officiell Node.js-avbildning som bas
-FROM node:18-alpine
+# Använd Nginx som basbild
+FROM nginx:alpine
 
-# Skapa en arbetskatalog i containern
-WORKDIR /app
+# Kopiera frontend till Nginx html-katalog
+COPY . /usr/share/nginx/html
 
-# Kopiera package.json och package-lock.json (om den finns)
-COPY package*.json ./
-
-# Installera Node.js beroenden
-RUN npm install
-
-# Kopiera hela projektet till containern
-COPY . .
-
-# Exponera porten som applikationen kör på
-EXPOSE 3000
-
-# Starta applikationen
-CMD ["node", "server.js"]
+# Exponera port 80 för frontend
+EXPOSE 80

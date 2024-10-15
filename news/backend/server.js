@@ -1,52 +1,38 @@
-const express = require("express");
-const axios = require("axios");
-const bodyParser = require("body-parser");
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 const app = express();
 const port = 3000;
 
 // Middleware
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Spara API:erna i en array (du kan också använda en databas för beständighet)
-let apiList = [
-  { name: "Sveriges Radio", url: "https://api.sr.se/api/v2/news?format=json" },
+// Nyhetslista (i minnet, för demonstration)
+let newsList = [
+  { id: 1, title: "Nyhet 1", content: "Detta är innehållet i nyhet 1." },
+  { id: 2, title: "Nyhet 2", content: "Detta är innehållet i nyhet 2." }
 ];
 
-// Hämta nyheter från dynamiska API-anrop
-app.get("/api/news", async (req, res) => {
-  try {
-    let allNews = [];
-
-    for (const api of apiList) {
-      const response = await axios.get(api.url);
-      allNews.push({ source: api.name, articles: response.data });
-    }
-
-    res.json(allNews);
-  } catch (error) {
-    res.status(500).send("Något gick fel när nyheterna hämtades");
-  }
+// Hämta alla nyheter
+app.get('/api/news', (req, res) => {
+  res.json(newsList);
 });
 
-// Lägg till ett nytt API
-app.post("/api/add", (req, res) => {
-  const { name, url } = req.body;
-  if (name && url) {
-    apiList.push({ name, url });
-    res.send("API tillagt!");
+// Publicera en ny nyhet
+app.post('/api/news', (req, res) => {
+  const { title, content } = req.body;
+  if (title && content) {
+    const newArticle = { id: newsList.length + 1, title, content };
+    newsList.push(newArticle);
+    res.json(newArticle);
   } else {
-    res.status(400).send("Namn och URL krävs");
+    res.status(400).send('Titel och innehåll krävs');
   }
 });
 
-// Ta bort ett API
-app.delete("/api/remove", (req, res) => {
-  const { name } = req.body;
-  apiList = apiList.filter((api) => api.name !== name);
-  res.send("API borttaget!");
-});
-
-app.listen(port, () => {
-  console.log(`Servern kör på http://localhost:${port}`);
-});
+// Redigera en nyhet
+app.put('/api/news/:id', (req, res) => {
+  const { id } = req.params;
+  const { title

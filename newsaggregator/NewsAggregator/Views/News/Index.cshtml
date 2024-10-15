@@ -1,0 +1,17 @@
+@model List<NewsSource>
+
+<h1>Nyhetsaggregator</h1>
+
+<form asp-action="AddSource" method="post">
+    <input type="text" name="name" placeholder="Nyhetsbyrå namn" required />
+    <input type="text" name="apiUrl" placeholder="API URL" required />
+    <button type="submit">Lägg till nyhetsbyrå</button>
+</form>
+
+<h2>Nyhetsbyråer</h2>
+<ul>
+    @foreach (var source in Model)
+    {
+            <li>@source.Name - <a href="@Url.Action("FetchNews", new { apiUrl = source.ApiUrl })">Hämta nyheter</a></li>
+    }
+</ul>
