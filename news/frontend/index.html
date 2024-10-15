@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyhetssamlare</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .news-container { display: flex; flex-wrap: wrap; }
+        .news-item { border: 1px solid #ccc; margin: 10px; padding: 15px; width: 300px; }
+        form { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Nyhetssamlare</h1>
+
+    <!-- Formulär för att lägga till API -->
+    <h2>Lägg till ett nytt API</h2>
+    <form id="addApiForm">
+        <label for="apiName">API Namn:</label>
+        <input type="text" id="apiName" name="apiName" required>
+        <br>
+        <label for="apiUrl">API URL:</label>
+        <input type="url" id="apiUrl" name="apiUrl" required>
+        <br>
+        <button type="submit">Lägg till API</button>
+    </form>
+
+    <!-- Formulär för att ta bort API -->
+    <h2>Ta bort ett API</h2>
+    <form id="removeApiForm">
+        <label for="removeApiName">API Namn:</label>
+        <input type="text" id="removeApiName" name="removeApiName" required>
+        <br>
+        <button type="submit">Ta bort API</button>
+    </form>
+
+    <h2>Nyheter</h2>
+    <div id="newsContainer" class="news-container"></div>
+
+    <script>
+        // Lägga till API
+        const addApiForm = document.getElementById('addApiForm');
+        addApiForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('apiName').value;
+            const url = document.getElementById('apiUrl').value;
+
+            try {
+                const response = await fetch('/api/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, url })
+                });
+
+                const result = await response.text();
+                alert(result);
+                addApiForm.reset();
+            } catch (error) {
+                alert('Fel vid tillägg av API');
+            }
+        });
+
+        // Ta bort API
+        const removeApiForm = document.getElementById('removeApiForm');
+        removeApiForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('removeApiName').value;
+
+            try {
+                const response = await fetch('/api/remove', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name })
+                });
+
+                const result = await response.text();
+                alert(result);
+                removeApiForm.reset();
+            } catch (error) {
+                alert('Fel vid borttagning av API');
+            }
+        });
+
+        // Hämta nyheter och visa dem på sidan
+        async function fetchNews() {
+            try {
+                const response = await fetch('/api/news');
+                const data = await response.json();
+                
+                const newsContainer = document.getElementById('newsContainer');
+                newsContainer.innerHTML = ''; // Rensa gamla nyheter
+
+                data.forEach(source => {
+                    source.articles.forEach(article => {
+                        const newsItem = document.createElement('div');
+                        newsItem.classList.add('news-item');
+                        newsItem.innerHTML = `
+                            <h2>${article.title || 'No title'}</h2>
+                            <p>${article.teaser || article.description || 'Ingen beskrivning tillgänglig'}</p>
+                            <a href="${article.url}" target="_blank">Läs mer</a>
+                        `;
+                        newsContainer.appendChild(newsItem);
+                    });
+                });
+            } catch (error) {
+                console.error('Fel vid hämtning av nyheter', error);
+            }
+        }
+
+        // Kör funktionen för att hämta nyheter när sidan laddas
+        fetchNews();
+    </script>
+</body>
+</html>
